@@ -1,0 +1,2212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusinessPro ERP System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .chart-bar { transition: all 0.3s ease; }
+        .chart-bar:hover { opacity: 0.8; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="flex items-center justify-between px-6 py-4">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-cube text-2xl"></i>
+                <h1 class="text-2xl font-bold">BusinessPro ERP</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="createBackup()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm transition-colors">
+                    <i class="fas fa-download mr-1"></i>Backup
+                </button>
+                <button onclick="document.getElementById('restoreInput').click()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm transition-colors">
+                    <i class="fas fa-upload mr-1"></i>Restore
+                </button>
+                <input type="file" id="restoreInput" accept=".json" style="display: none;" onchange="restoreBackup(event)">
+                <div class="relative">
+                    <i class="fas fa-bell text-xl cursor-pointer hover:text-yellow-300"></i>
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23f3f4f6'/%3E%3Ctext x='16' y='20' text-anchor='middle' fill='%23374151' font-family='Arial' font-size='12' font-weight='bold'%3EJD%3C/text%3E%3C/svg%3E" alt="User" class="w-8 h-8 rounded-full">
+                    <span class="font-medium">John Doe</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-lg h-screen sticky top-0">
+            <nav class="p-4">
+                <div class="space-y-2">
+                    <div class="sidebar-item p-3 rounded-lg cursor-pointer transition-all duration-200 bg-gradient-to-r from-blue-500 to-purple-600 text-white" onclick="showModule('dashboard')">
+                        <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100" onclick="showModule('inventory')">
+                        <i class="fas fa-boxes mr-3"></i>Inventory Management
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100" onclick="showModule('sales')">
+                        <i class="fas fa-chart-line mr-3"></i>Sales & Orders
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100" onclick="showModule('customers')">
+                        <i class="fas fa-users mr-3"></i>Customer Management
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100" onclick="showModule('suppliers')">
+                        <i class="fas fa-truck mr-3"></i>Supplier Management
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100" onclick="showModule('finance')">
+                        <i class="fas fa-dollar-sign mr-3"></i>Financial Management
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100" onclick="showModule('hr')">
+                        <i class="fas fa-user-tie mr-3"></i>Human Resources
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100" onclick="showModule('fbr')">
+                        <i class="fas fa-file-invoice mr-3"></i>FBR Digital Invoicing
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100" onclick="showModule('reports')">
+                        <i class="fas fa-chart-bar mr-3"></i>Reports & Analytics
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <!-- Dashboard Module -->
+            <div id="dashboard" class="module">
+                <div class="mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Overview</h2>
+                    <p class="text-gray-600">Welcome back! Here's what's happening in your business today.</p>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md card-hover transition-all duration-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Total Revenue</p>
+                                <p class="text-2xl font-bold text-green-600">₨3,118,000</p>
+                                <p class="text-green-500 text-sm">↗ +12.5% from last month</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-dollar-sign text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md card-hover transition-all duration-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Active Orders</p>
+                                <p class="text-2xl font-bold text-blue-600">247</p>
+                                <p class="text-blue-500 text-sm">↗ +8.2% from yesterday</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-shopping-cart text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md card-hover transition-all duration-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Inventory Items</p>
+                                <p class="text-2xl font-bold text-purple-600">1,847</p>
+                                <p class="text-red-500 text-sm">⚠ 23 items low stock</p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-boxes text-purple-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md card-hover transition-all duration-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Active Customers</p>
+                                <p class="text-2xl font-bold text-orange-600">892</p>
+                                <p class="text-orange-500 text-sm">↗ +15 new this week</p>
+                            </div>
+                            <div class="bg-orange-100 p-3 rounded-full">
+                                <i class="fas fa-users text-orange-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts and Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-semibold mb-4">Sales Trend (Last 7 Days)</h3>
+                        <div class="flex items-end space-x-2 h-40">
+                            <div class="chart-bar bg-blue-500 w-8 rounded-t" style="height: 60%"></div>
+                            <div class="chart-bar bg-blue-500 w-8 rounded-t" style="height: 80%"></div>
+                            <div class="chart-bar bg-blue-500 w-8 rounded-t" style="height: 45%"></div>
+                            <div class="chart-bar bg-blue-500 w-8 rounded-t" style="height: 90%"></div>
+                            <div class="chart-bar bg-blue-500 w-8 rounded-t" style="height: 70%"></div>
+                            <div class="chart-bar bg-blue-500 w-8 rounded-t" style="height: 85%"></div>
+                            <div class="chart-bar bg-blue-500 w-8 rounded-t" style="height: 95%"></div>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-500 mt-2">
+                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-semibold mb-4">Recent Activities</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                                <div class="bg-green-100 p-2 rounded-full">
+                                    <i class="fas fa-plus text-green-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">New order #ORD-2024-001</p>
+                                    <p class="text-xs text-gray-500">2 minutes ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                                <div class="bg-blue-100 p-2 rounded-full">
+                                    <i class="fas fa-user text-blue-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">New customer registered</p>
+                                    <p class="text-xs text-gray-500">15 minutes ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                                <div class="bg-yellow-100 p-2 rounded-full">
+                                    <i class="fas fa-exclamation text-yellow-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">Low stock alert: Widget A</p>
+                                    <p class="text-xs text-gray-500">1 hour ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Module -->
+            <div id="inventory" class="module hidden">
+                <div class="mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Inventory Management</h2>
+                    <div class="flex justify-between items-center">
+                        <p class="text-gray-600">Manage your products, stock levels, and warehouse operations.</p>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors" onclick="showAddProductModal()">
+                            <i class="fas fa-plus mr-2"></i>Add Product
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Inventory Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Total Products</h4>
+                        <p class="text-2xl font-bold" id="totalProducts">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Low Stock Items</h4>
+                        <p class="text-2xl font-bold text-orange-600" id="lowStockItems">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Out of Stock</h4>
+                        <p class="text-2xl font-bold text-red-600" id="outOfStockItems">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Total Value</h4>
+                        <p class="text-2xl font-bold text-green-600" id="totalInventoryValue">₨0</p>
+                    </div>
+                </div>
+
+                <!-- Inventory Table -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold">Product Inventory</h3>
+                            <div class="flex space-x-2">
+                                <div class="relative">
+                                    <input type="text" id="inventorySearch" placeholder="Search products..." class="px-3 py-2 border rounded-lg w-64" oninput="searchInventory(this.value)">
+                                    <div id="inventorySearchSuggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 hidden max-h-48 overflow-y-auto"></div>
+                                </div>
+                                <select id="categoryFilter" class="px-3 py-2 border rounded-lg" onchange="filterInventory()">
+                                    <option value="">All Categories</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Clothing">Clothing</option>
+                                    <option value="Home & Garden">Home & Garden</option>
+                                </select>
+                                <button onclick="clearInventoryFilters()" class="px-3 py-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">SKU</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200" id="inventoryTable">
+                                <!-- Inventory items will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Module -->
+            <div id="sales" class="module hidden">
+                <div class="mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Sales & Orders</h2>
+                    <div class="flex justify-between items-center">
+                        <p class="text-gray-600">Track sales performance and manage customer orders.</p>
+                        <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors" onclick="showCreateOrderModal()">
+                            <i class="fas fa-plus mr-2"></i>Create Order
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sales Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Today's Sales</h4>
+                        <p class="text-2xl font-bold text-green-600">₨311,250</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Pending Orders</h4>
+                        <p class="text-2xl font-bold text-orange-600">47</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Completed Orders</h4>
+                        <p class="text-2xl font-bold text-blue-600">156</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Monthly Target</h4>
+                        <p class="text-2xl font-bold">78%</p>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold">Recent Orders</h3>
+                            <div class="flex space-x-2">
+                                <div class="relative">
+                                    <input type="text" id="ordersSearch" placeholder="Search orders, customers..." class="px-3 py-2 border rounded-lg w-64" oninput="searchOrders(this.value)">
+                                    <div id="ordersSearchSuggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 hidden max-h-48 overflow-y-auto"></div>
+                                </div>
+                                <select id="statusFilter" class="px-3 py-2 border rounded-lg" onchange="filterOrders()">
+                                    <option value="">All Status</option>
+                                    <option value="Processing">Processing</option>
+                                    <option value="Shipped">Shipped</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                                <button onclick="clearOrderFilters()" class="px-3 py-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200" id="ordersTable">
+                                <!-- Orders will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other modules (simplified for brevity) -->
+            <div id="customers" class="module hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Customer Management</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <p class="text-gray-600 mb-4">Manage customer relationships, track interactions, and analyze customer data.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">Total Customers</h4>
+                            <p class="text-2xl font-bold text-blue-600">892</p>
+                        </div>
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">Active This Month</h4>
+                            <p class="text-2xl font-bold text-green-600">456</p>
+                        </div>
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">New This Week</h4>
+                            <p class="text-2xl font-bold text-purple-600">15</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="suppliers" class="module hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Supplier Management</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <p class="text-gray-600 mb-4">Manage supplier relationships, track deliveries, and monitor performance.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">Active Suppliers</h4>
+                            <p class="text-2xl font-bold text-blue-600">47</p>
+                        </div>
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">Pending Orders</h4>
+                            <p class="text-2xl font-bold text-orange-600">12</p>
+                        </div>
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">On-Time Delivery</h4>
+                            <p class="text-2xl font-bold text-green-600">94%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="finance" class="module hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Financial Management</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <p class="text-gray-600 mb-4">Track financial performance, manage budgets, and generate financial reports.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="p-4 border rounded-lg cursor-pointer hover:bg-gray-50" onclick="editFinanceItem('revenue')">
+                            <h4 class="font-semibold">Revenue</h4>
+                            <p class="text-2xl font-bold text-green-600" id="revenueAmount">₨3,114,500</p>
+                            <i class="fas fa-edit text-gray-400 text-sm"></i>
+                        </div>
+                        <div class="p-4 border rounded-lg cursor-pointer hover:bg-gray-50" onclick="editFinanceItem('expenses')">
+                            <h4 class="font-semibold">Expenses</h4>
+                            <p class="text-2xl font-bold text-red-600" id="expensesAmount">₨2,231,000</p>
+                            <i class="fas fa-edit text-gray-400 text-sm"></i>
+                        </div>
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">Profit</h4>
+                            <p class="text-2xl font-bold text-blue-600" id="profitAmount">₨883,500</p>
+                        </div>
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">Margin</h4>
+                            <p class="text-2xl font-bold text-purple-600">28.4%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="hr" class="module hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Human Resources</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <p class="text-gray-600 mb-4">Manage employees, track attendance, and handle HR processes.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">Total Employees</h4>
+                            <p class="text-2xl font-bold text-blue-600">127</p>
+                        </div>
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">Present Today</h4>
+                            <p class="text-2xl font-bold text-green-600">119</p>
+                        </div>
+                        <div class="p-4 border rounded-lg">
+                            <h4 class="font-semibold">On Leave</h4>
+                            <p class="text-2xl font-bold text-orange-600">8</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FBR Digital Invoicing Module -->
+            <div id="fbr" class="module hidden">
+                <div class="mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">FBR Digital Invoicing</h2>
+                    <p class="text-gray-600">Comply with SRO 709(I)/2025 - Real-time invoice reporting to FBR</p>
+                </div>
+
+                <!-- FBR Status Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm text-gray-500">FBR Connection</h4>
+                                <p class="text-lg font-bold" id="fbrConnectionStatus">🔴 Disconnected</p>
+                            </div>
+                            <button onclick="testFBRConnection()" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Invoices Submitted Today</h4>
+                        <p class="text-2xl font-bold text-green-600" id="todaySubmitted">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Pending Submission</h4>
+                        <p class="text-2xl font-bold text-orange-600" id="pendingSubmission">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="text-sm text-gray-500">Failed Submissions</h4>
+                        <p class="text-2xl font-bold text-red-600" id="failedSubmissions">0</p>
+                    </div>
+                </div>
+
+                <!-- FBR Configuration -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-semibold mb-4">FBR API Configuration</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Environment</label>
+                                <select id="fbrEnvironment" class="w-full px-3 py-2 border rounded-lg" onchange="updateFBREnvironment()">
+                                    <option value="sandbox">Sandbox (Testing)</option>
+                                    <option value="production">Production (Live)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
+                                <input type="text" id="fbrClientId" placeholder="Enter FBR Client ID" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
+                                <input type="password" id="fbrClientSecret" placeholder="Enter FBR Client Secret" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Business NTN</label>
+                                <input type="text" id="businessNTN" placeholder="1234567-8" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <button onclick="saveFBRConfig()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-save mr-2"></i>Save Configuration
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-semibold mb-4">Business Information</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
+                                <input type="text" id="businessName" placeholder="Your Business Name" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Business Address</label>
+                                <textarea id="businessAddress" rows="3" placeholder="Complete business address" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
+                                <input type="text" id="businessPhone" placeholder="+92-XXX-XXXXXXX" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <button onclick="saveBusinessInfo()" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                                <i class="fas fa-building mr-2"></i>Save Business Info
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Management -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold">FBR Invoice Management</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="bulkSubmitToFBR()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                    <i class="fas fa-upload mr-2"></i>Bulk Submit
+                                </button>
+                                <button onclick="downloadFBRReport()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                                    <i class="fas fa-download mr-2"></i>Download Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">FBR Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IRN</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200" id="fbrInvoicesTable">
+                                <!-- FBR invoices will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reports" class="module hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Reports & Analytics</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <p class="text-gray-600 mb-4">Generate comprehensive reports and analyze business performance.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                            <i class="fas fa-chart-line text-2xl text-blue-600 mb-2"></i>
+                            <h4 class="font-semibold">Sales Report</h4>
+                            <p class="text-sm text-gray-600">Detailed sales analysis</p>
+                        </div>
+                        <div class="p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                            <i class="fas fa-boxes text-2xl text-purple-600 mb-2"></i>
+                            <h4 class="font-semibold">Inventory Report</h4>
+                            <p class="text-sm text-gray-600">Stock levels and movements</p>
+                        </div>
+                        <div class="p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                            <i class="fas fa-dollar-sign text-2xl text-green-600 mb-2"></i>
+                            <h4 class="font-semibold">Financial Report</h4>
+                            <p class="text-sm text-gray-600">Revenue and expense analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Order Modal -->
+    <div id="createOrderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-semibold mb-4">Create New Order</h3>
+            <form id="createOrderForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                        <input type="text" id="customerName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Order Date</label>
+                        <input type="date" id="orderDate" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h4 class="font-medium mb-2">Add Products</h4>
+                    <div class="flex gap-2 mb-2">
+                        <select id="productSelect" class="flex-1 px-3 py-2 border rounded-lg">
+                            <option value="">Select Product</option>
+                        </select>
+                        <input type="number" id="productQuantity" placeholder="Qty" min="1" class="w-20 px-3 py-2 border rounded-lg">
+                        <button type="button" onclick="addProductToOrder()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Add</button>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h4 class="font-medium mb-2">Order Items</h4>
+                    <div id="orderItems" class="space-y-2 max-h-40 overflow-y-auto">
+                        <!-- Order items will be added here -->
+                    </div>
+                </div>
+                
+                <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">Total Amount:</span>
+                        <span class="text-xl font-bold text-green-600" id="orderTotal">₨0</span>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="hideCreateOrderModal()" class="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Create Order & Generate Receipt</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-md">
+            <h3 class="text-xl font-semibold mb-4">Add New Product</h3>
+            <form id="addProductForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                        <input type="text" id="productName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">SKU</label>
+                        <input type="text" id="productSKU" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <select id="productCategory" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                            <option value="">Select Category</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Home & Garden">Home & Garden</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Initial Stock</label>
+                        <input type="number" id="productStock" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Price (₨)</label>
+                        <input type="number" step="0.01" id="productPrice" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="hideAddProductModal()" class="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Finance Edit Modal -->
+    <div id="financeEditModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-md">
+            <h3 class="text-xl font-semibold mb-4" id="financeEditTitle">Edit Finance Item</h3>
+            <form id="financeEditForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" id="financeEditLabel">Amount (₨)</label>
+                    <input type="number" id="financeEditAmount" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="hideFinanceEditModal()" class="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FBR Invoice Details Modal -->
+    <div id="fbrInvoiceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">FBR Invoice Details</h3>
+                <button onclick="hideFBRInvoiceModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Invoice Information -->
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold mb-3">Invoice Information</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Order ID:</span>
+                                <span id="modalInvoiceId" class="font-medium"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Customer:</span>
+                                <span id="modalInvoiceCustomer" class="font-medium"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Date:</span>
+                                <span id="modalInvoiceDate" class="font-medium"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Amount:</span>
+                                <span id="modalInvoiceAmount" class="font-medium text-green-600"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold mb-3">FBR Status</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Submission Status:</span>
+                                <span id="modalFBRStatus" class="font-medium"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">IRN:</span>
+                                <span id="modalIRN" class="font-medium text-blue-600"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Submitted At:</span>
+                                <span id="modalSubmittedAt" class="font-medium"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- QR Code and Actions -->
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <h4 class="font-semibold mb-3">FBR QR Code</h4>
+                        <div id="qrCodeContainer" class="flex justify-center mb-3">
+                            <div class="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <span class="text-gray-500 text-sm">QR Code</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-600">Scan with FBR Tax Asaan app</p>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <button onclick="submitToFBR(currentInvoiceId)" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-upload mr-2"></i>Submit to FBR
+                        </button>
+                        <button onclick="downloadFBRInvoice(currentInvoiceId)" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-download mr-2"></i>Download FBR Invoice
+                        </button>
+                        <button onclick="viewFBRLog(currentInvoiceId)" class="w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700">
+                            <i class="fas fa-list mr-2"></i>View Submission Log
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Invoice Items -->
+            <div class="mt-6">
+                <h4 class="font-semibold mb-3">Invoice Items</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left">Description</th>
+                                <th class="px-3 py-2 text-left">Qty</th>
+                                <th class="px-3 py-2 text-left">Unit Price</th>
+                                <th class="px-3 py-2 text-left">Tax</th>
+                                <th class="px-3 py-2 text-left">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalInvoiceItems" class="divide-y divide-gray-200">
+                            <!-- Items will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Status Update Modal -->
+    <div id="orderStatusModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-lg">
+            <h3 class="text-xl font-semibold mb-4">Update Order Status</h3>
+            
+            <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div><strong>Order ID:</strong> <span id="modalOrderId"></span></div>
+                    <div><strong>Customer:</strong> <span id="modalCustomer"></span></div>
+                    <div><strong>Date:</strong> <span id="modalDate"></span></div>
+                    <div><strong>Amount:</strong> <span id="modalAmount"></span></div>
+                </div>
+                <div class="mt-2">
+                    <strong>Current Status:</strong> 
+                    <span id="modalCurrentStatus" class="px-2 py-1 text-xs font-medium rounded-full ml-2"></span>
+                </div>
+            </div>
+
+            <form id="orderStatusForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Select New Status:</label>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <input type="radio" name="orderStatus" value="Processing" class="mr-3">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                                <div>
+                                    <div class="font-medium">Processing</div>
+                                    <div class="text-sm text-gray-500">Order is being prepared</div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <input type="radio" name="orderStatus" value="Shipped" class="mr-3">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                                <div>
+                                    <div class="font-medium">Shipped</div>
+                                    <div class="text-sm text-gray-500">Order is on the way to customer</div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <input type="radio" name="orderStatus" value="Delivered" class="mr-3">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                                <div>
+                                    <div class="font-medium">Delivered</div>
+                                    <div class="text-sm text-gray-500">Order has been delivered successfully</div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <input type="radio" name="orderStatus" value="Cancelled" class="mr-3">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
+                                <div>
+                                    <div class="font-medium">Cancelled</div>
+                                    <div class="text-sm text-gray-500">Order has been cancelled</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+                    <textarea id="statusNotes" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Add any notes about this status update..."></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="hideOrderStatusModal()" class="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-save mr-2"></i>Update Status
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data persistence functions
+        function saveToLocalStorage() {
+            const data = {
+                inventory: inventory,
+                orders: orders,
+                financeData: financeData,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('businessProERP', JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('businessProERP');
+            if (saved) {
+                const data = JSON.parse(saved);
+                inventory = data.inventory || inventory;
+                orders = data.orders || orders;
+                financeData = data.financeData || financeData;
+                updateFinanceDisplay();
+            }
+        }
+
+        // Sample data (will be overridden by localStorage if available)
+        let inventory = [
+            {id: 1, name: "Wireless Headphones", sku: "WH-001", category: "Electronics", stock: 45, price: 24999, status: "In Stock"},
+            {id: 2, name: "Cotton T-Shirt", sku: "CT-002", category: "Clothing", stock: 8, price: 6249, status: "Low Stock"},
+            {id: 3, name: "Garden Hose", sku: "GH-003", category: "Home & Garden", stock: 0, price: 9999, status: "Out of Stock"},
+            {id: 4, name: "Bluetooth Speaker", sku: "BS-004", category: "Electronics", stock: 23, price: 19999, status: "In Stock"},
+            {id: 5, name: "Denim Jeans", sku: "DJ-005", category: "Clothing", stock: 67, price: 14999, status: "In Stock"}
+        ];
+
+        let orders = [
+            {id: "ORD-2024-001", customer: "John Smith", date: "2024-01-15", amount: 74992, status: "Processing", items: [{name: "Wireless Headphones", quantity: 3, price: 24999}]},
+            {id: "ORD-2024-002", customer: "Sarah Johnson", date: "2024-01-15", amount: 37495, status: "Shipped", items: [{name: "Cotton T-Shirt", quantity: 6, price: 6249}]},
+            {id: "ORD-2024-003", customer: "Mike Davis", date: "2024-01-14", amount: 19999, status: "Delivered", items: [{name: "Bluetooth Speaker", quantity: 1, price: 19999}]},
+            {id: "ORD-2024-004", customer: "Emily Brown", date: "2024-01-14", amount: 49987, status: "Processing", items: [{name: "Denim Jeans", quantity: 3, price: 14999}, {name: "Cotton T-Shirt", quantity: 1, price: 6249}]},
+            {id: "ORD-2024-005", customer: "David Wilson", date: "2024-01-13", amount: 22499, status: "Cancelled", items: [{name: "Cotton T-Shirt", quantity: 3, price: 6249}]}
+        ];
+
+        // Module switching
+        function showModule(moduleId) {
+            // Hide all modules
+            document.querySelectorAll('.module').forEach(module => {
+                module.classList.add('hidden');
+            });
+            
+            // Remove active state from all sidebar items
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white');
+                item.classList.add('hover:bg-gray-100');
+            });
+            
+            // Show selected module
+            document.getElementById(moduleId).classList.remove('hidden');
+            
+            // Add active state to clicked sidebar item
+            event.target.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white');
+            event.target.classList.remove('hover:bg-gray-100');
+            
+            // Load module-specific data
+            if (moduleId === 'inventory') {
+                loadInventoryTable();
+            } else if (moduleId === 'sales') {
+                loadOrdersTable();
+            } else if (moduleId === 'fbr') {
+                loadFBRInvoicesTable();
+                updateFBRStats();
+            }
+        }
+
+        // Calculate inventory statistics
+        function calculateInventoryStats() {
+            const totalProducts = inventory.length;
+            const lowStockItems = inventory.filter(item => item.status === 'Low Stock').length;
+            const outOfStockItems = inventory.filter(item => item.status === 'Out of Stock').length;
+            const totalValue = inventory.reduce((sum, item) => sum + (item.stock * item.price), 0);
+            
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('lowStockItems').textContent = lowStockItems;
+            document.getElementById('outOfStockItems').textContent = outOfStockItems;
+            document.getElementById('totalInventoryValue').textContent = `₨${totalValue.toLocaleString()}`;
+        }
+
+        // Load inventory table with filtering
+        let filteredInventory = [];
+        function loadInventoryTable(itemsToShow = null) {
+            const tableBody = document.getElementById('inventoryTable');
+            tableBody.innerHTML = '';
+            
+            const items = itemsToShow || inventory;
+            filteredInventory = items;
+            
+            items.forEach(item => {
+                const statusColor = item.status === 'In Stock' ? 'text-green-600 bg-green-100' : 
+                                  item.status === 'Low Stock' ? 'text-yellow-600 bg-yellow-100' : 
+                                  'text-red-600 bg-red-100';
+                
+                const row = `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="font-medium text-gray-900">${item.name}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${item.sku}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${item.category}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900">${item.stock}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900">₨${item.price.toLocaleString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor}">${item.status}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <button class="text-blue-600 hover:text-blue-800 mr-2" onclick="editProduct(${item.id})">Edit</button>
+                            <button class="text-red-600 hover:text-red-800" onclick="deleteProduct(${item.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+            
+            // Update stats only when showing all items
+            if (!itemsToShow) {
+                calculateInventoryStats();
+            }
+        }
+
+        // Load orders table with filtering
+        let filteredOrders = [];
+        function loadOrdersTable(ordersToShow = null) {
+            const tableBody = document.getElementById('ordersTable');
+            tableBody.innerHTML = '';
+            
+            const ordersData = ordersToShow || orders;
+            filteredOrders = ordersData;
+            
+            ordersData.forEach(order => {
+                const statusColor = order.status === 'Delivered' ? 'text-green-600 bg-green-100' : 
+                                  order.status === 'Shipped' ? 'text-blue-600 bg-blue-100' : 
+                                  order.status === 'Processing' ? 'text-yellow-600 bg-yellow-100' :
+                                  'text-red-600 bg-red-100';
+                
+                const row = `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${order.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${order.customer}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${order.date}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900">₨${order.amount.toLocaleString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor}">${order.status}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <button class="text-blue-600 hover:text-blue-800 mr-2" onclick="viewOrder('${order.id}')">View</button>
+                            <button class="text-green-600 hover:text-green-800 mr-2" onclick="updateOrderStatus('${order.id}')">Update</button>
+                            <button class="text-purple-600 hover:text-purple-800" onclick="generateReceipt('${order.id}')">Receipt</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // Smart search for inventory
+        function searchInventory(query) {
+            const suggestions = document.getElementById('inventorySearchSuggestions');
+            
+            if (!query.trim()) {
+                suggestions.classList.add('hidden');
+                loadInventoryTable();
+                return;
+            }
+            
+            const matches = inventory.filter(item => 
+                item.name.toLowerCase().includes(query.toLowerCase()) ||
+                item.sku.toLowerCase().includes(query.toLowerCase()) ||
+                item.category.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            // Show suggestions
+            if (matches.length > 0) {
+                suggestions.innerHTML = matches.slice(0, 5).map(item => 
+                    `<div class="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0" onclick="selectInventoryItem('${item.name}')">
+                        <div class="font-medium">${item.name}</div>
+                        <div class="text-sm text-gray-500">${item.sku} • ${item.category} • Stock: ${item.stock}</div>
+                    </div>`
+                ).join('');
+                suggestions.classList.remove('hidden');
+            } else {
+                suggestions.innerHTML = '<div class="px-3 py-2 text-gray-500">No matches found</div>';
+                suggestions.classList.remove('hidden');
+            }
+            
+            // Filter table
+            loadInventoryTable(matches);
+        }
+
+        function selectInventoryItem(itemName) {
+            document.getElementById('inventorySearch').value = itemName;
+            document.getElementById('inventorySearchSuggestions').classList.add('hidden');
+            searchInventory(itemName);
+        }
+
+        // Smart search for orders
+        function searchOrders(query) {
+            const suggestions = document.getElementById('ordersSearchSuggestions');
+            
+            if (!query.trim()) {
+                suggestions.classList.add('hidden');
+                loadOrdersTable();
+                return;
+            }
+            
+            const matches = orders.filter(order => 
+                order.id.toLowerCase().includes(query.toLowerCase()) ||
+                order.customer.toLowerCase().includes(query.toLowerCase()) ||
+                order.status.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            // Show suggestions
+            if (matches.length > 0) {
+                suggestions.innerHTML = matches.slice(0, 5).map(order => 
+                    `<div class="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0" onclick="selectOrderItem('${order.id}')">
+                        <div class="font-medium">${order.id} - ${order.customer}</div>
+                        <div class="text-sm text-gray-500">${order.date} • ${order.status} • ₨${order.amount.toLocaleString()}</div>
+                    </div>`
+                ).join('');
+                suggestions.classList.remove('hidden');
+            } else {
+                suggestions.innerHTML = '<div class="px-3 py-2 text-gray-500">No matches found</div>';
+                suggestions.classList.remove('hidden');
+            }
+            
+            // Filter table
+            loadOrdersTable(matches);
+        }
+
+        function selectOrderItem(orderId) {
+            document.getElementById('ordersSearch').value = orderId;
+            document.getElementById('ordersSearchSuggestions').classList.add('hidden');
+            searchOrders(orderId);
+        }
+
+        // Filter functions
+        function filterInventory() {
+            const category = document.getElementById('categoryFilter').value;
+            const searchQuery = document.getElementById('inventorySearch').value;
+            
+            let filtered = inventory;
+            
+            if (category) {
+                filtered = filtered.filter(item => item.category === category);
+            }
+            
+            if (searchQuery.trim()) {
+                filtered = filtered.filter(item => 
+                    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    item.category.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+            
+            loadInventoryTable(filtered);
+        }
+
+        function filterOrders() {
+            const status = document.getElementById('statusFilter').value;
+            const searchQuery = document.getElementById('ordersSearch').value;
+            
+            let filtered = orders;
+            
+            if (status) {
+                filtered = filtered.filter(order => order.status === status);
+            }
+            
+            if (searchQuery.trim()) {
+                filtered = filtered.filter(order => 
+                    order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    order.status.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+            
+            loadOrdersTable(filtered);
+        }
+
+        function clearInventoryFilters() {
+            document.getElementById('inventorySearch').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('inventorySearchSuggestions').classList.add('hidden');
+            loadInventoryTable();
+        }
+
+        function clearOrderFilters() {
+            document.getElementById('ordersSearch').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('ordersSearchSuggestions').classList.add('hidden');
+            loadOrdersTable();
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#inventorySearch') && !e.target.closest('#inventorySearchSuggestions')) {
+                document.getElementById('inventorySearchSuggestions').classList.add('hidden');
+            }
+            if (!e.target.closest('#ordersSearch') && !e.target.closest('#ordersSearchSuggestions')) {
+                document.getElementById('ordersSearchSuggestions').classList.add('hidden');
+            }
+        });
+
+        // Modal functions
+        function showAddProductModal() {
+            document.getElementById('addProductModal').classList.remove('hidden');
+            document.getElementById('addProductModal').classList.add('flex');
+        }
+
+        function hideAddProductModal() {
+            document.getElementById('addProductModal').classList.add('hidden');
+            document.getElementById('addProductModal').classList.remove('flex');
+            document.getElementById('addProductForm').reset();
+        }
+
+        function showCreateOrderModal() {
+            document.getElementById('createOrderModal').classList.remove('hidden');
+            document.getElementById('createOrderModal').classList.add('flex');
+            loadProductsForOrder();
+        }
+
+        function hideCreateOrderModal() {
+            document.getElementById('createOrderModal').classList.add('hidden');
+            document.getElementById('createOrderModal').classList.remove('flex');
+            document.getElementById('createOrderForm').reset();
+            document.getElementById('orderItems').innerHTML = '';
+            orderTotal = 0;
+            updateOrderTotal();
+        }
+
+        // Product management functions
+        function editProduct(id) {
+            const product = inventory.find(p => p.id === id);
+            alert(`Edit product: ${product.name}\nThis would open an edit form with current values.`);
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                inventory = inventory.filter(p => p.id !== id);
+                loadInventoryTable();
+                saveToLocalStorage();
+                alert('Product deleted successfully!');
+            }
+        }
+
+        // Backup and restore functions
+        function createBackup() {
+            const data = {
+                inventory: inventory,
+                orders: orders,
+                financeData: financeData,
+                timestamp: new Date().toISOString(),
+                version: "1.0"
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `BusinessPro_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            alert('Backup created successfully!');
+        }
+
+        function restoreBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (confirm('This will replace all current data. Are you sure you want to restore from backup?')) {
+                        inventory = data.inventory || [];
+                        orders = data.orders || [];
+                        financeData = data.financeData || {revenue: 3114500, expenses: 2231000};
+                        
+                        saveToLocalStorage();
+                        updateFinanceDisplay();
+                        loadInventoryTable();
+                        loadOrdersTable();
+                        
+                        alert('Data restored successfully!');
+                    }
+                } catch (error) {
+                    alert('Invalid backup file format!');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset the input
+            event.target.value = '';
+        }
+
+        // Receipt generation function
+        function generateReceipt(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) {
+                alert('Order not found!');
+                return;
+            }
+            
+            try {
+                // Check if jsPDF is loaded
+                if (typeof window.jspdf === 'undefined') {
+                    alert('PDF library not loaded. Please refresh the page and try again.');
+                    return;
+                }
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Header
+                doc.setFontSize(20);
+                doc.setFont(undefined, 'bold');
+                doc.text('BusinessPro ERP', 20, 20);
+                doc.setFontSize(16);
+                doc.text('SALES RECEIPT', 20, 30);
+                
+                // Order details
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Order ID: ${order.id}`, 20, 50);
+                doc.text(`Customer: ${order.customer}`, 20, 60);
+                doc.text(`Date: ${order.date}`, 20, 70);
+                doc.text(`Status: ${order.status}`, 20, 80);
+                
+                // Line separator
+                doc.line(20, 90, 190, 90);
+                
+                // Items header
+                doc.setFont(undefined, 'bold');
+                doc.text('Item', 20, 105);
+                doc.text('Qty', 120, 105);
+                doc.text('Price', 140, 105);
+                doc.text('Total', 170, 105);
+                
+                doc.line(20, 110, 190, 110);
+                
+                // Items
+                doc.setFont(undefined, 'normal');
+                let yPos = 120;
+                let grandTotal = 0;
+                
+                if (order.items && order.items.length > 0) {
+                    order.items.forEach(item => {
+                        const itemTotal = item.quantity * item.price;
+                        grandTotal += itemTotal;
+                        
+                        // Truncate long item names to fit
+                        const itemName = item.name.length > 25 ? item.name.substring(0, 25) + '...' : item.name;
+                        
+                        doc.text(itemName, 20, yPos);
+                        doc.text(item.quantity.toString(), 120, yPos);
+                        doc.text(`Rs${item.price.toLocaleString()}`, 140, yPos);
+                        doc.text(`Rs${itemTotal.toLocaleString()}`, 170, yPos);
+                        yPos += 10;
+                    });
+                } else {
+                    // Fallback if items not available
+                    doc.text('Order items not available', 20, yPos);
+                    grandTotal = order.amount;
+                    yPos += 10;
+                }
+                
+                // Total line
+                doc.line(20, yPos + 5, 190, yPos + 5);
+                doc.setFont(undefined, 'bold');
+                doc.text('TOTAL:', 140, yPos + 15);
+                doc.text(`Rs${grandTotal.toLocaleString()}`, 170, yPos + 15);
+                
+                // Footer
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                doc.text('Thank you for your business!', 20, yPos + 35);
+                doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, yPos + 45);
+                
+                // Save the PDF with proper filename
+                const filename = `Receipt_${order.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(filename);
+                
+                console.log(`Receipt generated: ${filename}`);
+                
+            } catch (error) {
+                console.error('Error generating receipt:', error);
+                alert('Error generating receipt. Please try again.');
+            }
+        }
+
+        // Order management functions
+        function viewOrder(orderId) {
+            alert(`View order details for: ${orderId}\nThis would show comprehensive order information.`);
+        }
+
+        function updateOrderStatus(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) {
+                alert('Order not found!');
+                return;
+            }
+            
+            showOrderStatusModal(order);
+        }
+
+        // Add product form submission
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newProduct = {
+                id: inventory.length + 1,
+                name: document.getElementById('productName').value,
+                sku: document.getElementById('productSKU').value,
+                category: document.getElementById('productCategory').value,
+                stock: parseInt(document.getElementById('productStock').value),
+                price: parseFloat(document.getElementById('productPrice').value),
+                status: parseInt(document.getElementById('productStock').value) > 10 ? 'In Stock' : 
+                       parseInt(document.getElementById('productStock').value) > 0 ? 'Low Stock' : 'Out of Stock'
+            };
+            
+            inventory.push(newProduct);
+            loadInventoryTable();
+            saveToLocalStorage();
+            hideAddProductModal();
+            alert('Product added successfully!');
+        });
+
+        // Order creation variables
+        let orderTotal = 0;
+        let orderItems = [];
+        let currentFinanceItem = '';
+        let financeData = {
+            revenue: 3114500,
+            expenses: 2231000
+        };
+
+        // Load products for order creation
+        function loadProductsForOrder() {
+            const productSelect = document.getElementById('productSelect');
+            productSelect.innerHTML = '<option value="">Select Product</option>';
+            
+            inventory.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                
+                if (product.stock <= 0) {
+                    option.textContent = `${product.name} - ₨${product.price.toLocaleString()} (OUT OF STOCK)`;
+                    option.disabled = true;
+                    option.style.color = '#ef4444';
+                } else if (product.stock <= 2) {
+                    option.textContent = `${product.name} - ₨${product.price.toLocaleString()} (⚠️ LOW STOCK: ${product.stock})`;
+                    option.style.color = '#f59e0b';
+                } else {
+                    option.textContent = `${product.name} - ₨${product.price.toLocaleString()} (Stock: ${product.stock})`;
+                }
+                
+                productSelect.appendChild(option);
+            });
+        }
+
+        // Add product to order with stock validation
+        function addProductToOrder() {
+            const productId = parseInt(document.getElementById('productSelect').value);
+            const quantity = parseInt(document.getElementById('productQuantity').value);
+            
+            if (!productId || !quantity || quantity <= 0) {
+                alert('Please select a product and enter a valid quantity.');
+                return;
+            }
+            
+            const product = inventory.find(p => p.id === productId);
+            
+            // Check if product is out of stock
+            if (product.stock <= 0) {
+                alert(`❌ NO MORE STOCK LEFT for ${product.name}!\nCurrent stock: ${product.stock}`);
+                return;
+            }
+            
+            // Check if requested quantity exceeds available stock
+            const existingItem = orderItems.find(item => item.productId === productId);
+            const currentOrderQuantity = existingItem ? existingItem.quantity : 0;
+            const totalRequestedQuantity = currentOrderQuantity + quantity;
+            
+            if (totalRequestedQuantity > product.stock) {
+                alert(`❌ INSUFFICIENT STOCK!\n\nProduct: ${product.name}\nAvailable: ${product.stock}\nAlready in order: ${currentOrderQuantity}\nRequested: ${quantity}\nTotal needed: ${totalRequestedQuantity}\n\nMaximum you can add: ${product.stock - currentOrderQuantity}`);
+                return;
+            }
+            
+            // Stock warning for low stock items
+            if (product.stock <= 2) {
+                alert(`⚠️ LOW STOCK WARNING!\n\nProduct: ${product.name}\nRemaining stock: ${product.stock}\nThis item is running very low!`);
+            }
+            
+            if (existingItem) {
+                existingItem.quantity += quantity;
+                existingItem.total = existingItem.quantity * existingItem.price;
+            } else {
+                orderItems.push({
+                    productId: productId,
+                    name: product.name,
+                    price: product.price,
+                    quantity: quantity,
+                    total: product.price * quantity
+                });
+            }
+            
+            updateOrderDisplay();
+            document.getElementById('productSelect').value = '';
+            document.getElementById('productQuantity').value = '';
+        }
+
+        // Update order display
+        function updateOrderDisplay() {
+            const orderItemsDiv = document.getElementById('orderItems');
+            orderItemsDiv.innerHTML = '';
+            orderTotal = 0;
+            
+            orderItems.forEach((item, index) => {
+                orderTotal += item.total;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'flex justify-between items-center p-2 bg-gray-50 rounded';
+                itemDiv.innerHTML = `
+                    <span>${item.name} x ${item.quantity}</span>
+                    <div class="flex items-center space-x-2">
+                        <span>₨${item.total.toLocaleString()}</span>
+                        <button type="button" onclick="removeOrderItem(${index})" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                `;
+                orderItemsDiv.appendChild(itemDiv);
+            });
+            
+            updateOrderTotal();
+        }
+
+        // Update order total
+        function updateOrderTotal() {
+            document.getElementById('orderTotal').textContent = `₨${orderTotal.toLocaleString()}`;
+        }
+
+        // Remove item from order
+        function removeOrderItem(index) {
+            orderItems.splice(index, 1);
+            updateOrderDisplay();
+        }
+
+        // Finance management functions
+        function editFinanceItem(type) {
+            currentFinanceItem = type;
+            const modal = document.getElementById('financeEditModal');
+            const title = document.getElementById('financeEditTitle');
+            const label = document.getElementById('financeEditLabel');
+            const input = document.getElementById('financeEditAmount');
+            
+            title.textContent = `Edit ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+            label.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Amount (₨)`;
+            input.value = financeData[type];
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function hideFinanceEditModal() {
+            document.getElementById('financeEditModal').classList.add('hidden');
+            document.getElementById('financeEditModal').classList.remove('flex');
+        }
+
+        // Order status modal functions
+        function showOrderStatusModal(order) {
+            document.getElementById('modalOrderId').textContent = order.id;
+            document.getElementById('modalCustomer').textContent = order.customer;
+            document.getElementById('modalDate').textContent = order.date;
+            document.getElementById('modalAmount').textContent = `₨${order.amount.toLocaleString()}`;
+            
+            const currentStatusSpan = document.getElementById('modalCurrentStatus');
+            currentStatusSpan.textContent = order.status;
+            
+            // Set current status color
+            const statusColors = {
+                'Processing': 'text-yellow-600 bg-yellow-100',
+                'Shipped': 'text-blue-600 bg-blue-100',
+                'Delivered': 'text-green-600 bg-green-100',
+                'Cancelled': 'text-red-600 bg-red-100'
+            };
+            currentStatusSpan.className = `px-2 py-1 text-xs font-medium rounded-full ml-2 ${statusColors[order.status] || 'text-gray-600 bg-gray-100'}`;
+            
+            // Pre-select current status
+            const radioButtons = document.querySelectorAll('input[name="orderStatus"]');
+            radioButtons.forEach(radio => {
+                radio.checked = radio.value === order.status;
+            });
+            
+            // Clear notes
+            document.getElementById('statusNotes').value = '';
+            
+            // Store current order ID for form submission
+            document.getElementById('orderStatusForm').dataset.orderId = order.id;
+            
+            document.getElementById('orderStatusModal').classList.remove('hidden');
+            document.getElementById('orderStatusModal').classList.add('flex');
+        }
+
+        function hideOrderStatusModal() {
+            document.getElementById('orderStatusModal').classList.add('hidden');
+            document.getElementById('orderStatusModal').classList.remove('flex');
+        }
+
+        function updateFinanceDisplay() {
+            document.getElementById('revenueAmount').textContent = `₨${financeData.revenue.toLocaleString()}`;
+            document.getElementById('expensesAmount').textContent = `₨${financeData.expenses.toLocaleString()}`;
+            const profit = financeData.revenue - financeData.expenses;
+            document.getElementById('profitAmount').textContent = `₨${profit.toLocaleString()}`;
+        }
+
+        // Create order form submission (prevent multiple submissions)
+        let isSubmitting = false;
+        document.getElementById('createOrderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (isSubmitting) return; // Prevent multiple submissions
+            
+            if (orderItems.length === 0) {
+                alert('Please add at least one product to the order.');
+                return;
+            }
+            
+            isSubmitting = true;
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Creating Order...';
+            
+            const customerName = document.getElementById('customerName').value;
+            const orderDate = document.getElementById('orderDate').value;
+            
+            const newOrder = {
+                id: `ORD-2024-${String(orders.length + 1).padStart(3, '0')}`,
+                customer: customerName,
+                date: orderDate,
+                amount: orderTotal,
+                status: 'Processing',
+                items: [...orderItems]
+            };
+            
+            // Update inventory
+            orderItems.forEach(item => {
+                const product = inventory.find(p => p.id === item.productId);
+                product.stock -= item.quantity;
+                if (product.stock <= 0) {
+                    product.status = 'Out of Stock';
+                } else if (product.stock <= 10) {
+                    product.status = 'Low Stock';
+                }
+            });
+            
+            orders.unshift(newOrder);
+            loadOrdersTable();
+            loadInventoryTable();
+            saveToLocalStorage();
+            
+            // Generate receipt automatically
+            setTimeout(() => {
+                generateReceipt(newOrder.id);
+                
+                hideCreateOrderModal();
+                orderItems = [];
+                orderTotal = 0;
+                
+                // Reset form state
+                isSubmitting = false;
+                submitButton.disabled = false;
+                submitButton.textContent = 'Create Order & Generate Receipt';
+                
+                alert('Order created successfully and receipt downloaded!');
+            }, 500);
+        });
+
+        // Finance edit form submission
+        document.getElementById('financeEditForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newAmount = parseInt(document.getElementById('financeEditAmount').value);
+            financeData[currentFinanceItem] = newAmount;
+            
+            // Update display
+            document.getElementById(`${currentFinanceItem}Amount`).textContent = `₨${newAmount.toLocaleString()}`;
+            
+            // Calculate and update profit
+            const profit = financeData.revenue - financeData.expenses;
+            document.getElementById('profitAmount').textContent = `₨${profit.toLocaleString()}`;
+            
+            saveToLocalStorage();
+            hideFinanceEditModal();
+            alert(`${currentFinanceItem.charAt(0).toUpperCase() + currentFinanceItem.slice(1)} updated successfully!`);
+        });
+
+        // Order status form submission
+        document.getElementById('orderStatusForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const orderId = e.target.dataset.orderId;
+            const selectedStatus = document.querySelector('input[name="orderStatus"]:checked');
+            const notes = document.getElementById('statusNotes').value;
+            
+            if (!selectedStatus) {
+                alert('Please select a status to update.');
+                return;
+            }
+            
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                const oldStatus = order.status;
+                order.status = selectedStatus.value;
+                
+                // Add timestamp and notes to order history (optional enhancement)
+                if (!order.statusHistory) {
+                    order.statusHistory = [];
+                }
+                order.statusHistory.push({
+                    status: selectedStatus.value,
+                    timestamp: new Date().toISOString(),
+                    notes: notes || 'No notes provided'
+                });
+                
+                loadOrdersTable();
+                saveToLocalStorage();
+                hideOrderStatusModal();
+                
+                // Show success message with status change details
+                const statusEmojis = {
+                    'Processing': '⏳',
+                    'Shipped': '🚚',
+                    'Delivered': '✅',
+                    'Cancelled': '❌'
+                };
+                
+                alert(`${statusEmojis[selectedStatus.value]} Order ${orderId} status updated!\n\nFrom: ${oldStatus}\nTo: ${selectedStatus.value}\n\n${notes ? 'Notes: ' + notes : 'No additional notes'}`);
+            }
+        });
+
+        // Set default date for order creation
+        function setDefaultOrderDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('orderDate').value = today;
+        }
+
+        // FBR Integration Variables and Functions
+        let fbrConfig = {
+            environment: 'sandbox',
+            clientId: '',
+            clientSecret: '',
+            businessNTN: '',
+            businessName: '',
+            businessAddress: '',
+            businessPhone: '',
+            accessToken: '',
+            tokenExpiry: null
+        };
+
+        let fbrInvoices = [];
+        let currentInvoiceId = null;
+
+        // FBR Configuration Functions
+        function saveFBRConfig() {
+            fbrConfig.environment = document.getElementById('fbrEnvironment').value;
+            fbrConfig.clientId = document.getElementById('fbrClientId').value;
+            fbrConfig.clientSecret = document.getElementById('fbrClientSecret').value;
+            fbrConfig.businessNTN = document.getElementById('businessNTN').value;
+            
+            localStorage.setItem('fbrConfig', JSON.stringify(fbrConfig));
+            alert('✅ FBR Configuration saved successfully!\n\n⚠️ Note: This is a demo implementation.\nFor production use, you need:\n• Valid FBR API credentials\n• IP whitelisting with FBR\n• SSL certificate\n• FBR approval');
+        }
+
+        function saveBusinessInfo() {
+            fbrConfig.businessName = document.getElementById('businessName').value;
+            fbrConfig.businessAddress = document.getElementById('businessAddress').value;
+            fbrConfig.businessPhone = document.getElementById('businessPhone').value;
+            
+            localStorage.setItem('fbrConfig', JSON.stringify(fbrConfig));
+            alert('✅ Business information saved successfully!');
+        }
+
+        function loadFBRConfig() {
+            const saved = localStorage.getItem('fbrConfig');
+            if (saved) {
+                fbrConfig = { ...fbrConfig, ...JSON.parse(saved) };
+                
+                document.getElementById('fbrEnvironment').value = fbrConfig.environment;
+                document.getElementById('fbrClientId').value = fbrConfig.clientId;
+                document.getElementById('fbrClientSecret').value = fbrConfig.clientSecret;
+                document.getElementById('businessNTN').value = fbrConfig.businessNTN;
+                document.getElementById('businessName').value = fbrConfig.businessName;
+                document.getElementById('businessAddress').value = fbrConfig.businessAddress;
+                document.getElementById('businessPhone').value = fbrConfig.businessPhone;
+            }
+        }
+
+        function updateFBREnvironment() {
+            const env = document.getElementById('fbrEnvironment').value;
+            const statusElement = document.getElementById('fbrConnectionStatus');
+            
+            if (env === 'sandbox') {
+                statusElement.innerHTML = '🟡 Sandbox Mode';
+                statusElement.className = 'text-lg font-bold text-yellow-600';
+            } else {
+                statusElement.innerHTML = '🔴 Production Mode';
+                statusElement.className = 'text-lg font-bold text-red-600';
+            }
+        }
+
+        // FBR API Functions (Demo Implementation)
+        async function testFBRConnection() {
+            const statusElement = document.getElementById('fbrConnectionStatus');
+            statusElement.innerHTML = '🔄 Testing...';
+            
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            if (!fbrConfig.clientId || !fbrConfig.clientSecret) {
+                statusElement.innerHTML = '❌ Config Missing';
+                statusElement.className = 'text-lg font-bold text-red-600';
+                alert('❌ Please configure FBR API credentials first!');
+                return;
+            }
+            
+            // Demo: Simulate successful connection
+            if (fbrConfig.environment === 'sandbox') {
+                statusElement.innerHTML = '✅ Connected (Demo)';
+                statusElement.className = 'text-lg font-bold text-green-600';
+                alert('✅ FBR Connection Test Successful!\n\n📝 Note: This is a demo connection.\nIn production, this would:\n• Authenticate with FBR servers\n• Validate API credentials\n• Check IP whitelisting\n• Verify business registration');
+            } else {
+                statusElement.innerHTML = '⚠️ Demo Mode Only';
+                statusElement.className = 'text-lg font-bold text-orange-600';
+                alert('⚠️ Production mode requires actual FBR credentials and approval.');
+            }
+        }
+
+        // Generate FBR compliant invoice JSON
+        function generateFBRInvoice(order) {
+            const salesTaxRate = 0.17; // 17% sales tax
+            
+            const fbrInvoice = {
+                invoiceNumber: order.id,
+                invoiceDate: new Date(order.date).toISOString(),
+                seller: {
+                    ntn: fbrConfig.businessNTN || "1234567-8",
+                    name: fbrConfig.businessName || "Your Business Name",
+                    address: fbrConfig.businessAddress || "123 Main St, Karachi"
+                },
+                buyer: {
+                    ntn: "7654321-8", // In real implementation, get from customer data
+                    name: order.customer,
+                    cnic: "12345-6789012-3" // Demo CNIC
+                },
+                items: order.items ? order.items.map(item => {
+                    const baseAmount = item.price * item.quantity;
+                    const salesTax = Math.round(baseAmount * salesTaxRate);
+                    
+                    return {
+                        description: item.name,
+                        quantity: item.quantity,
+                        unitPrice: item.price,
+                        hsCode: "8517.6200", // Demo HS code
+                        uom: "PCS",
+                        tax: {
+                            salesTax: salesTax,
+                            furtherTax: 0,
+                            withholdingTax: 0
+                        },
+                        totalAmount: baseAmount + salesTax
+                    };
+                }) : [{
+                    description: "Order Items",
+                    quantity: 1,
+                    unitPrice: order.amount,
+                    hsCode: "9999.9999",
+                    uom: "PCS",
+                    tax: {
+                        salesTax: Math.round(order.amount * salesTaxRate),
+                        furtherTax: 0,
+                        withholdingTax: 0
+                    },
+                    totalAmount: order.amount
+                }],
+                totalAmount: order.amount,
+                currency: "PKR"
+            };
+            
+            return fbrInvoice;
+        }
+
+        // Submit invoice to FBR (Demo Implementation)
+        async function submitToFBR(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) {
+                alert('❌ Order not found!');
+                return;
+            }
+            
+            if (!fbrConfig.clientId || !fbrConfig.businessNTN) {
+                alert('❌ Please configure FBR settings first!');
+                return;
+            }
+            
+            try {
+                // Show loading state
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+                button.disabled = true;
+                
+                // Generate FBR compliant invoice
+                const fbrInvoice = generateFBRInvoice(order);
+                
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                // Demo: Simulate successful submission
+                const mockIRN = `IRN${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+                const mockQRData = `${mockIRN}|${order.id}|${order.amount}|${fbrConfig.businessNTN}`;
+                
+                // Update order with FBR data
+                order.fbrStatus = 'Submitted';
+                order.fbrIRN = mockIRN;
+                order.fbrSubmittedAt = new Date().toISOString();
+                order.fbrQRData = mockQRData;
+                
+                // Update statistics
+                updateFBRStats();
+                loadFBRInvoicesTable();
+                saveToLocalStorage();
+                
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+                
+                alert(`✅ Invoice submitted to FBR successfully!\n\n📋 Invoice: ${order.id}\n🔢 IRN: ${mockIRN}\n📅 Submitted: ${new Date().toLocaleString()}\n\n📝 Note: This is a demo submission.\nIn production, this would:\n• Send data to actual FBR servers\n• Receive real IRN from FBR\n• Generate authentic QR code\n• Handle real-time validation`);
+                
+            } catch (error) {
+                console.error('FBR submission error:', error);
+                alert('❌ Failed to submit to FBR. Please try again.');
+                
+                // Reset button on error
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        // Bulk submit to FBR
+        async function bulkSubmitToFBR() {
+            const pendingOrders = orders.filter(order => !order.fbrStatus && order.status !== 'Cancelled');
+            
+            if (pendingOrders.length === 0) {
+                alert('ℹ️ No pending invoices to submit to FBR.');
+                return;
+            }
+            
+            if (!confirm(`📤 Submit ${pendingOrders.length} invoices to FBR?\n\nThis will process all pending orders.`)) {
+                return;
+            }
+            
+            let successCount = 0;
+            let failCount = 0;
+            
+            for (let i = 0; i < pendingOrders.length; i++) {
+                const order = pendingOrders[i];
+                
+                try {
+                    // Show progress
+                    document.getElementById('fbrConnectionStatus').innerHTML = `🔄 Processing ${i + 1}/${pendingOrders.length}`;
+                    
+                    // Generate FBR invoice
+                    const fbrInvoice = generateFBRInvoice(order);
+                    
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Mock successful submission
+                    const mockIRN = `IRN${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+                    
+                    order.fbrStatus = 'Submitted';
+                    order.fbrIRN = mockIRN;
+                    order.fbrSubmittedAt = new Date().toISOString();
+                    order.fbrQRData = `${mockIRN}|${order.id}|${order.amount}|${fbrConfig.businessNTN}`;
+                    
+                    successCount++;
+                    
+                } catch (error) {
+                    console.error(`Failed to submit ${order.id}:`, error);
+                    order.fbrStatus = 'Failed';
+                    order.fbrError = error.message;
+                    failCount++;
+                }
+            }
+            
+            updateFBRStats();
+            loadFBRInvoicesTable();
+            saveToLocalStorage();
+            
+            alert(`📊 Bulk Submission Complete!\n\n✅ Successful: ${successCount}\n❌ Failed: ${failCount}\n\n📝 Note: This is a demo bulk submission.`);
+        }
+
+        // Load FBR invoices table
+        function loadFBRInvoicesTable() {
+            const tableBody = document.getElementById('fbrInvoicesTable');
+            tableBody.innerHTML = '';
+            
+            orders.forEach(order => {
+                const fbrStatusColor = order.fbrStatus === 'Submitted' ? 'text-green-600 bg-green-100' : 
+                                     order.fbrStatus === 'Failed' ? 'text-red-600 bg-red-100' : 
+                                     'text-gray-600 bg-gray-100';
+                
+                const row = `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${order.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${order.customer}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900">₨${order.amount.toLocaleString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${fbrStatusColor}">
+                                ${order.fbrStatus || 'Pending'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-blue-600 font-mono text-sm">
+                            ${order.fbrIRN || '-'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <button class="text-blue-600 hover:text-blue-800 mr-2" onclick="viewFBRInvoice('${order.id}')">View</button>
+                            ${!order.fbrStatus ? `<button class="text-green-600 hover:text-green-800 mr-2" onclick="submitToFBR('${order.id}')">Submit</button>` : ''}
+                            <button class="text-purple-600 hover:text-purple-800" onclick="downloadFBRInvoice('${order.id}')">Download</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // Update FBR statistics
+        function updateFBRStats() {
+            const today = new Date().toDateString();
+            const todaySubmitted = orders.filter(order => 
+                order.fbrStatus === 'Submitted' && 
+                new Date(order.fbrSubmittedAt).toDateString() === today
+            ).length;
+            
+            const pendingSubmission = orders.filter(order => 
+                !order.fbrStatus && order.status !== 'Cancelled'
+            ).length;
+            
+            const failedSubmissions = orders.filter(order => 
+                order.fbrStatus === 'Failed'
+            ).length;
+            
+            document.getElementById('todaySubmitted').textContent = todaySubmitted;
+            document.getElementById('pendingSubmission').textContent = pendingSubmission;
+            document.getElementById('failedSubmissions').textContent = failedSubmissions;
+        }
+
+        // View FBR invoice details
+        function viewFBRInvoice(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            currentInvoiceId = orderId;
+            
+            // Populate modal with order data
+            document.getElementById('modalInvoiceId').textContent = order.id;
+            document.getElementById('modalInvoiceCustomer').textContent = order.customer;
+            document.getElementById('modalInvoiceDate').textContent = order.date;
+            document.getElementById('modalInvoiceAmount').textContent = `₨${order.amount.toLocaleString()}`;
+            
+            document.getElementById('modalFBRStatus').textContent = order.fbrStatus || 'Pending';
+            document.getElementById('modalIRN').textContent = order.fbrIRN || 'Not generated';
+            document.getElementById('modalSubmittedAt').textContent = order.fbrSubmittedAt ? 
+                new Date(order.fbrSubmittedAt).toLocaleString() : 'Not submitted';
+            
+            // Populate items table
+            const itemsTable = document.getElementById('modalInvoiceItems');
+            itemsTable.innerHTML = '';
+            
+            if (order.items && order.items.length > 0) {
+                order.items.forEach(item => {
+                    const salesTax = Math.round(item.price * item.quantity * 0.17);
+                    const row = `
+                        <tr>
+                            <td class="px-3 py-2">${item.name}</td>
+                            <td class="px-3 py-2">${item.quantity}</td>
+                            <td class="px-3 py-2">₨${item.price.toLocaleString()}</td>
+                            <td class="px-3 py-2">₨${salesTax.toLocaleString()}</td>
+                            <td class="px-3 py-2">₨${(item.price * item.quantity + salesTax).toLocaleString()}</td>
+                        </tr>
+                    `;
+                    itemsTable.innerHTML += row;
+                });
+            } else {
+                itemsTable.innerHTML = `
+                    <tr>
+                        <td class="px-3 py-2" colspan="5" class="text-center text-gray-500">
+                            No detailed items available
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            // Show QR code if available
+            const qrContainer = document.getElementById('qrCodeContainer');
+            if (order.fbrQRData) {
+                qrContainer.innerHTML = `
+                    <div class="w-32 h-32 bg-white border-2 border-gray-300 rounded-lg flex items-center justify-center">
+                        <div class="text-xs text-center p-2">
+                            <div class="font-mono text-[8px] break-all">${order.fbrQRData}</div>
+                            <div class="text-gray-500 mt-1">Demo QR</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                qrContainer.innerHTML = `
+                    <div class="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <span class="text-gray-500 text-sm">No QR Code</span>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('fbrInvoiceModal').classList.remove('hidden');
+            document.getElementById('fbrInvoiceModal').classList.add('flex');
+        }
+
+        function hideFBRInvoiceModal() {
+            document.getElementById('fbrInvoiceModal').classList.add('hidden');
+            document.getElementById('fbrInvoiceModal').classList.remove('flex');
+            currentInvoiceId = null;
+        }
+
+        // Download FBR invoice
+        function downloadFBRInvoice(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const fbrInvoice = generateFBRInvoice(order);
+            
+            // Create downloadable JSON file
+            const dataStr = JSON.stringify(fbrInvoice, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `FBR_Invoice_${order.id}_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            alert(`📄 FBR Invoice downloaded: ${order.id}\n\n📝 Note: This is a demo JSON file.\nIn production, this would be:\n• Official FBR format\n• Digitally signed\n• Include authentic QR code\n• Compliant with SRO 709(I)/2025`);
+        }
+
+        // Download FBR report
+        function downloadFBRReport() {
+            const reportData = {
+                generatedAt: new Date().toISOString(),
+                businessInfo: {
+                    ntn: fbrConfig.businessNTN,
+                    name: fbrConfig.businessName,
+                    address: fbrConfig.businessAddress
+                },
+                summary: {
+                    totalInvoices: orders.length,
+                    submittedToFBR: orders.filter(o => o.fbrStatus === 'Submitted').length,
+                    pendingSubmission: orders.filter(o => !o.fbrStatus && o.status !== 'Cancelled').length,
+                    failedSubmissions: orders.filter(o => o.fbrStatus === 'Failed').length,
+                    totalAmount: orders.reduce((sum, order) => sum + order.amount, 0)
+                },
+                invoices: orders.map(order => ({
+                    orderId: order.id,
+                    customer: order.customer,
+                    date: order.date,
+                    amount: order.amount,
+                    fbrStatus: order.fbrStatus || 'Pending',
+                    fbrIRN: order.fbrIRN || null,
+                    submittedAt: order.fbrSubmittedAt || null
+                }))
+            };
+            
+            const dataStr = JSON.stringify(reportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `FBR_Report_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            alert('📊 FBR Compliance Report downloaded successfully!');
+        }
+
+        // View FBR submission log
+        function viewFBRLog(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            let logMessage = `📋 FBR Submission Log for ${order.id}\n\n`;
+            logMessage += `📅 Order Date: ${order.date}\n`;
+            logMessage += `👤 Customer: ${order.customer}\n`;
+            logMessage += `💰 Amount: ₨${order.amount.toLocaleString()}\n`;
+            logMessage += `📊 Status: ${order.fbrStatus || 'Pending'}\n`;
+            
+            if (order.fbrIRN) {
+                logMessage += `🔢 IRN: ${order.fbrIRN}\n`;
+            }
+            
+            if (order.fbrSubmittedAt) {
+                logMessage += `⏰ Submitted: ${new Date(order.fbrSubmittedAt).toLocaleString()}\n`;
+            }
+            
+            if (order.fbrError) {
+                logMessage += `❌ Error: ${order.fbrError}\n`;
+            }
+            
+            logMessage += `\n📝 Note: This is a demo log.\nIn production, this would show:\n• Detailed API request/response logs\n• Validation errors\n• Retry attempts\n• FBR server responses`;
+            
+            alert(logMessage);
+        }
+
+        // Initialize dashboard on load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFromLocalStorage();
+            loadInventoryTable();
+            loadOrdersTable();
+            setDefaultOrderDate();
+            loadFBRConfig();
+            updateFBREnvironment();
+            updateFBRStats();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'980f9e82d47c21f5',t:'MTc1ODE4NTY3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
